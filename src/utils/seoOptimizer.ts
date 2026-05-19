@@ -59,7 +59,10 @@ ${combinedExtractedText.length > 0 ? combinedExtractedText : "(감지된 이미�
         raw_text: "경추 베개, 메모리폼, 숙면, C자 곡선, 통기성",
         main_copy: "자고 일어나도 뻐근했던 목과 어깨, 인생 베개로 아침을 바꾸세요.",
         sub_copy: "올바른 C자 경추 곡선을 지지하는 인체공학 메모리폼 코어로, 뒤척임에도 흔들림 없는 완벽한 숙면을 선사합니다.",
-        body_text: "초밀도 고밀도 메모리폼 코어가 머리와 목의 무게를 균등하게 분산시켜 압박감을 최소화합니다. 통기성 에어 메시 커버로 사계절 내내 보송보송하게 즐겨보세요."
+        body_text: "초밀도 고밀도 메모리폼 코어가 머리와 목의 무게를 균등하게 분산시켜 압박감을 최소화합니다. 통기성 에어 메시 커버로 사계절 내내 보송보송하게 즐겨보세요.",
+        main_title: "뻐근한 아침을 상쾌하게 바꾸는 올바른 C자 곡선 침구",
+        sub_title: "뒤척임에도 흔들림 없이 편안한 고밀도 인체공학 메모리폼",
+        body_title: "머리와 목의 압박을 고르게 분산하는 보송한 에어 메시 커버"
       };
     } else {
       matchedTemplate = categoryTemplates[4]; // Default to Living/Furniture (생활/가구)
@@ -89,9 +92,9 @@ ${combinedExtractedText.length > 0 ? combinedExtractedText : "(감지된 이미�
 
       // Create narrative blocks utilizing our rich copywriting database category matchers!
       narrativePoints = [
-        { title: "### 💡 메인 후킹 카피 (Hook)", desc: matchedTemplate.main_copy },
-        { title: "### ✨ 핵심 특장점 (USP)", desc: matchedTemplate.sub_copy },
-        { title: "### 📝 제품 상세 소개 (Details)", desc: matchedTemplate.body_text }
+        { title: `### ${matchedTemplate.main_title || "제품 소개"}`, desc: matchedTemplate.main_copy },
+        { title: `### ${matchedTemplate.sub_title || "주요 특징"}`, desc: matchedTemplate.sub_copy },
+        { title: `### ${matchedTemplate.body_title || "상세 안내"}`, desc: matchedTemplate.body_text }
       ];
 
       seo_score_review = `수동 특징 입력값이 비어있어, 이미지 분석을 통해 감지된 [${matchedTemplate.category}] 카테고리의 이커머스 최적화 카피라이팅 템플릿과 연동하여 고품질 상세페이지를 재구성했습니다.`;
@@ -100,9 +103,9 @@ ${combinedExtractedText.length > 0 ? combinedExtractedText : "(감지된 이미�
       title = `[AI 비전 추출] 프리미엄 ${matchedTemplate.target_items[0] || "추천 상품"}`;
       hashtags = ["#AI비전추출", "#상세페이지", "#네이버쇼핑"];
       narrativePoints = [
-        { title: "### 💡 메인 타이틀 (Main Copy)", desc: matchedTemplate.main_copy },
-        { title: "### ✨ 상세 혜택 (Benefit)", desc: matchedTemplate.sub_copy },
-        { title: "### 📝 특장점 소개 (Features)", desc: matchedTemplate.body_text }
+        { title: `### ${matchedTemplate.main_title || "제품 소개"}`, desc: matchedTemplate.main_copy },
+        { title: `### ${matchedTemplate.sub_title || "주요 특징"}`, desc: matchedTemplate.sub_copy },
+        { title: `### ${matchedTemplate.body_title || "상세 안내"}`, desc: matchedTemplate.body_text }
       ];
       seo_score_review = `업로드된 이미지의 구도 및 레이아웃을 시각적으로 분석하여, [${matchedTemplate.category}] 쇼핑 가이드에 입각한 전문 카피를 자동 완성했습니다.`;
     }
@@ -125,9 +128,9 @@ ${combinedExtractedText.length > 0 ? combinedExtractedText : "(감지된 이미�
 
     // Map features to narrative blocks with category copy integration
     narrativePoints = [
-      { title: "### 💡 " + (lines[0] ? lines[0].replace(/[#\*]/g, '').trim() : "메인 소구점"), desc: matchedTemplate.main_copy },
-      { title: "### ✨ " + (lines[1] ? lines[1].replace(/[#\*]/g, '').trim() : "상세 혜택"), desc: matchedTemplate.sub_copy },
-      { title: "### 📝 핵심 특징 정보", desc: matchedTemplate.body_text }
+      { title: "### " + (lines[0] ? lines[0].replace(/[#\*💡✨📝]/g, '').trim() : (matchedTemplate.main_title || "제품 소개")), desc: matchedTemplate.main_copy },
+      { title: "### " + (lines[1] ? lines[1].replace(/[#\*💡✨📝]/g, '').trim() : (matchedTemplate.sub_title || "주요 특징")), desc: matchedTemplate.sub_copy },
+      { title: `### ${matchedTemplate.body_title || "상세 안내"}`, desc: matchedTemplate.body_text }
     ];
 
     seo_score_review = `입력받은 키워드를 바탕으로 [${matchedTemplate.category}] 전문 이커머스 상세 문맥 분석 엔진을 적용하여 메인/서브/상세 카피라이팅을 완성했습니다.`;
@@ -145,8 +148,8 @@ ${combinedExtractedText.length > 0 ? combinedExtractedText : "(감지된 이미�
         block_id: blockIdCounter++,
         type: i === 0 ? "intro_image" : i === 1 ? "problem_image" : "detail_image",
         image_action_instruction: i === 0 
-          ? "기존 통이미지의 최상단 인트로 구역(0px~1500px)을 가로 860px 크기로 크롭 및 배경 텍스트 제거 완료."
-          : `기존 통이미지의 제품 설명 구역(${1500 * i}px~${1500 * (i + 1)}px)에서 이미지 요소 크롭 및 가로 860px 복원 완료.`,
+          ? "기존 통이미지의 흰색 텍스트 배경 영역을 완전히 잘라내어(Crop) 핵심 상품 요소 중심으로 전체 이미지 크기 리사이징(Resizing) 완료."
+          : `기존 통이미지의 제품 설명 구역(${1500 * i}px~${1500 * (i + 1)}px)에서 흰색 텍스트 배경 영역을 완전히 잘라내고(Crop) 상품 위주로 전체 이미지 크기 정밀 리사이징(Resizing) 완료.`,
         text_content: ""
       });
     }

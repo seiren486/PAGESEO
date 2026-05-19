@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from "react";
-import { Sparkles, AlertCircle, Eye, EyeOff, Layers, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, AlertCircle, Layers } from "lucide-react";
 import type { DetailPageBlock } from "../data/systemPrompt";
 
 interface DynamicDetailBlockProps {
@@ -13,24 +13,7 @@ export default function DynamicDetailBlock({
   detailBlocks, 
   onBlockChange 
 }: DynamicDetailBlockProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const [isOverlayMode, setIsOverlayMode] = useState(true);
   const [selectedImgIdx, setSelectedImgIdx] = useState(0);
-
-  // ResizeObserver to calculate dynamic container width for perfectly relative responsive font sizes!
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const observer = new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        setContainerWidth(entry.contentRect.width);
-      }
-    });
-
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   // Determine the text block logically associated with the selected image index.
   const textBlocks = detailBlocks.filter(b => b.type.includes('text'));
@@ -63,13 +46,6 @@ export default function DynamicDetailBlock({
     const prefix = isH2 ? '##' : '###';
     const updatedContent = `${prefix} ${title}\n${newBody}`;
     onBlockChange(currentTextBlock.block_id, updatedContent);
-  };
-
-  // Dynamic relative font sizing based on current container width
-  const getScaledFontSize = (scale: number) => {
-    if (containerWidth === 0) return "1rem";
-    const fontSizePx = (containerWidth * scale * 0.016);
-    return `${fontSizePx}px`;
   };
 
   /* ========================================================================= */
@@ -167,42 +143,19 @@ export default function DynamicDetailBlock({
   };
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <div className="w-full flex flex-col gap-4 animate-fade-in">
       
       {/* Control panel & Image tab selector */}
-      <div className="flex flex-col gap-4 bg-surface-container-low p-5 rounded-xl border border-outline-variant/60 animate-fade-in">
+      <div className="flex flex-col gap-4 bg-surface-container-low p-5 rounded-xl border border-outline-variant/60">
         
-        {/* Top: View Switcher */}
+        {/* Top Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-outline-variant/30 pb-4">
           <div className="flex items-center gap-2">
-            <Layers className="text-primary-container shrink-0 animate-pulse" size={20} />
+            <Layers className="text-primary shrink-0" size={20} />
             <div>
-              <h4 className="font-label-bold text-label-bold text-on-surface">AI 실시간 반응형 오버레이 에디터</h4>
-              <p className="text-[11px] text-on-surface-variant">클릭 후 글씨를 직접 수정하면 상세페이지 전체 정보 모델에 즉각 연동됩니다.</p>
+              <h4 className="font-label-bold text-label-bold text-on-surface">AI 실시간 반응형 카드 에디터</h4>
+              <p className="text-[11px] text-on-surface-variant">아래 카드의 제목과 설명 글씨를 수정하면 상세페이지 전체 정보 모델에 즉각 연동됩니다.</p>
             </div>
-          </div>
-          
-          <div className="flex gap-2 self-stretch sm:self-auto shrink-0">
-            <button 
-              onClick={() => setIsOverlayMode(true)}
-              className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all border
-                ${isOverlayMode 
-                  ? 'bg-primary text-white border-primary shadow-sm' 
-                  : 'bg-surface-container-lowest text-on-surface border-outline-variant hover:bg-surface-container'}`}
-            >
-              <Eye size={14} />
-              이미지 오버레이 뷰
-            </button>
-            <button 
-              onClick={() => setIsOverlayMode(false)}
-              className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold transition-all border
-                ${!isOverlayMode 
-                  ? 'bg-primary text-white border-primary shadow-sm' 
-                  : 'bg-surface-container-lowest text-on-surface border-outline-variant hover:bg-surface-container'}`}
-            >
-              <EyeOff size={14} />
-              반응형 카드 뷰 (Fallback)
-            </button>
           </div>
         </div>
 
@@ -227,189 +180,66 @@ export default function DynamicDetailBlock({
         </div>
       </div>
 
-      {/* Main Canvas Area */}
-      <div 
-        ref={containerRef}
-        className="w-full rounded-xl overflow-hidden border border-outline-variant shadow relative bg-white"
-      >
-        {isOverlayMode ? (
-          /* ========================================================================= */
-          /* 1. 이미지 오버레이 모드 (Absolutely Positioned and ContentEditable) */
-          /* ========================================================================= */
-          <div className="relative w-full select-none select-text-safe bg-surface-container animate-fade-in">
+      {/* Main Canvas Area: Responsive Card View only */}
+      <div className="w-full rounded-xl overflow-hidden border border-outline-variant shadow bg-[#f8f9fa]">
+        <div className="w-full flex flex-col md:grid md:grid-cols-12 gap-0">
+          
+          {/* Left Image Box: Tiny border padding, image fills maximum space containing original quality */}
+          <div className="col-span-5 p-2.5 bg-surface-container flex items-center justify-center border-b md:border-b-0 md:border-r border-outline-variant/40 shrink-0 min-h-[350px]">
+            <div className="w-full h-full min-h-[330px] rounded-lg overflow-hidden border border-outline-variant shadow-sm bg-white flex items-center justify-center relative p-1.5">
+              
+              {/* 물리적 크롭(잘라내기) 및 상하좌우 자동 정밀 센터링 렌더러 호출 */}
+              {renderCroppedCardImage(selectedImgIdx, images[selectedImgIdx])}
+
+              <div className="absolute bottom-3 left-3 bg-primary text-on-primary text-[9px] font-bold px-2 py-0.5 rounded shadow flex items-center gap-1 z-10">
+                <Sparkles size={10} className="animate-spin" />
+                AI Cropped Center
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Semantic Structured Text content details */}
+          <div className="col-span-7 p-6 flex flex-col gap-4 bg-white justify-center">
             
-            {/* Background Clean Image with visual inpainting mask overlays */}
-            <div className="relative w-full max-h-[650px] overflow-hidden flex justify-center bg-white">
-              <img 
-                src={images[selectedImgIdx]} 
-                alt={`Clean Slide ${selectedImgIdx + 1}`} 
-                className="w-full h-auto block object-cover mx-auto" 
+            <div className="border-b border-outline-variant/40 pb-3 mb-1 flex items-center justify-between">
+              <h3 className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-1.5">
+                <Layers size={18} className="text-primary" />
+                SEO 구조화 텍스트 리스트
+              </h3>
+              <span className="text-[10px] bg-secondary-container text-on-secondary px-2.5 py-1 rounded-full font-bold uppercase">
+                Image #{selectedImgIdx + 1}
+              </span>
+            </div>
+
+            {/* Title Input (Editable) */}
+            <div className="group/item border-l-2 border-primary pl-4 py-1.5 relative transition-all hover:border-primary-container">
+              <span className="text-[9px] font-bold text-primary block uppercase tracking-wider mb-1">타이틀 제목</span>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                className="font-headline-sm text-primary text-left leading-relaxed w-full bg-surface-container-low px-2 py-1 rounded border border-outline-variant focus:outline-none focus:border-primary"
               />
-              
-              {/* ================= INPAINTING SIMULATOR OVERLAYS START ================= */}
-              {/* Dynamically covers the original text areas in the raw uploaded images so only clean product imagery remains! */}
-              {selectedImgIdx === 1 && (
-                <>
-                  <div className="absolute top-0 left-0 right-0 h-[28%] bg-white" />
-                  <div className="absolute bottom-0 left-0 right-0 h-[34%] bg-white" />
-                </>
-              )}
-              {selectedImgIdx === 0 && (
-                <div className="absolute bottom-0 left-0 right-0 h-[22%] bg-white" />
-              )}
-              {selectedImgIdx === 4 && (
-                /* Covers the full upper 52% to completely block the 5-segment pillow large text */
-                <div className="absolute top-0 left-0 right-0 h-[52%] bg-white" />
-              )}
-              {selectedImgIdx === 5 && (
-                /* Covers the upper 56% to completely erase original cozy text block */
-                <div className="absolute top-0 left-0 right-0 h-[56%] bg-white" />
-              )}
-              {/* ================= INPAINTING SIMULATOR OVERLAYS END ================= */}
             </div>
 
-            {/* Overlaid Title Box (Editable!) */}
-            <div
-              className="absolute flex flex-col justify-center rounded transition-all duration-200 p-2 group/block bg-white/5 border border-dashed border-primary-container/20 hover:border-primary-container hover:bg-white/30 backdrop-blur-[1px]"
-              style={{
-                left: '8%',
-                top: '15%',
-                width: '50%',
-                height: '14%',
-              }}
-            >
-              <h2
-                contentEditable
-                suppressContentEditableWarning
-                onBlur={(e) => handleTitleChange(e.currentTarget.innerText)}
-                className="text-on-surface font-extrabold leading-tight outline-none select-text w-full cursor-text"
-                style={{ fontSize: getScaledFontSize(2.4) }}
-                title="클릭하여 타이틀 문구를 수정하세요"
-              >
-                {title || "핵심 타이틀 문구 입력"}
-              </h2>
-              <span className="absolute -top-5 left-1 opacity-0 group-hover/block:opacity-100 transition-opacity bg-zinc-800 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                ✎ 더블클릭/클릭하여 타이틀 수정
-              </span>
+            {/* Description Input (Editable) */}
+            <div className="group/item border-l-2 border-outline-variant pl-4 py-1.5 relative transition-all hover:border-primary-container">
+              <span className="text-[9px] font-bold text-on-surface-variant block uppercase tracking-wider mb-1">본문 설명</span>
+              <textarea
+                value={body}
+                onChange={(e) => handleBodyChange(e.target.value)}
+                className="font-body-md text-on-surface-variant text-left leading-relaxed w-full bg-surface-container-low px-2 py-1 rounded border border-outline-variant focus:outline-none focus:border-primary resize-y min-h-[90px]"
+              />
             </div>
 
-            {/* Overlaid Body Text Box (Editable!) */}
-            <div
-              className="absolute flex flex-col justify-center rounded transition-all duration-200 p-2 group/block bg-white/5 border border-dashed border-primary-container/20 hover:border-primary-container hover:bg-white/30 backdrop-blur-[1px]"
-              style={{
-                left: '8%',
-                top: '32%',
-                width: '45%',
-                height: '24%',
-              }}
-            >
-              <p
-                contentEditable
-                suppressContentEditableWarning
-                onBlur={(e) => handleBodyChange(e.currentTarget.innerText)}
-                className="text-on-surface-variant leading-relaxed font-medium outline-none select-text w-full cursor-text"
-                style={{ fontSize: getScaledFontSize(1.1) }}
-                title="클릭하여 상세 설명 문구를 수정하세요"
-              >
-                {body || "상세 설명 내용이 기입됩니다."}
-              </p>
-              <span className="absolute -top-5 left-1 opacity-0 group-hover/block:opacity-100 transition-opacity bg-zinc-800 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                ✎ 더블클릭/클릭하여 본문 설명 수정
-              </span>
-            </div>
-
-            {/* Carousel navigation controls inside canvas */}
-            <div className="absolute top-1/2 left-2 -translate-y-1/2 flex items-center justify-center">
-              <button
-                onClick={() => setSelectedImgIdx(prev => (prev - 1 + images.length) % images.length)}
-                className="w-8 h-8 rounded-full bg-white/90 shadow hover:bg-white flex items-center justify-center transition-colors text-on-surface"
-              >
-                <ChevronLeft size={18} />
-              </button>
-            </div>
-            <div className="absolute top-1/2 right-2 -translate-y-1/2 flex items-center justify-center">
-              <button
-                onClick={() => setSelectedImgIdx(prev => (prev + 1) % images.length)}
-                className="w-8 h-8 rounded-full bg-white/90 shadow hover:bg-white flex items-center justify-center transition-colors text-on-surface"
-              >
-                <ChevronRight size={18} />
-              </button>
-            </div>
-
-            {/* Bottom info badge */}
-            <div className="absolute bottom-3 left-3 bg-zinc-900/80 backdrop-blur text-white text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow">
-              <Sparkles size={12} className="text-primary-container animate-pulse" />
-              <span>이미지 #{selectedImgIdx + 1} 텍스트 에디터 활성화됨</span>
+            <div className="flex items-center gap-2 text-[10px] text-on-surface-variant/80 mt-1 bg-yellow-50 border border-yellow-100 p-2.5 rounded-lg">
+              <AlertCircle size={12} className="text-yellow-600 shrink-0" />
+              <span>글자를 수정하면 하단 스마트스토어 상세페이지 블록에 실시간 반영됩니다.</span>
             </div>
 
           </div>
-        ) : (
-          /* ========================================================================= */
-          /* 2. 반응형 카드 뷰 모드 (Fallback Stack & Grid) */
-          /* ========================================================================= */
-          /* 
-             이미지창은 초록색 부분이 아주 조금만 디자인적으로 보이게 해주고 이미지로 최대한 채워줌.
-             잘라내기(Clip Out) 처리를 통해 이미지를 재편하고, 잘린 알짜배기 상품 이미지가 좌우상하 정중앙에 정렬됨.
-          */
-          <div className="w-full flex flex-col md:grid md:grid-cols-12 gap-0 bg-[#f8f9fa] animate-fade-in">
-            
-            {/* Left Image Box: Tiny green border padding p-2.5, image fills maximum space containing original quality */}
-            <div className="col-span-5 p-2.5 bg-surface-container flex items-center justify-center border-b md:border-b-0 md:border-r border-outline-variant/40 shrink-0 min-h-[350px]">
-              <div className="w-full h-full min-h-[330px] rounded-lg overflow-hidden border border-outline-variant shadow-sm bg-white flex items-center justify-center relative p-1.5">
-                
-                {/* 물리적 크롭(잘라내기) 및 상하좌우 자동 정밀 센터링 렌더러 호출 */}
-                {renderCroppedCardImage(selectedImgIdx, images[selectedImgIdx])}
 
-                <div className="absolute bottom-3 left-3 bg-primary text-on-primary text-[9px] font-bold px-2 py-0.5 rounded shadow flex items-center gap-1 z-10">
-                  <Sparkles size={10} className="animate-spin" />
-                  AI Cropped Center
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Semantic Structured Text content details */}
-            <div className="col-span-7 p-6 flex flex-col gap-4 bg-white justify-center">
-              
-              <div className="border-b border-outline-variant/40 pb-3 mb-1 flex items-center justify-between">
-                <h3 className="font-headline-sm text-headline-sm text-on-surface flex items-center gap-1.5">
-                  <Layers size={18} className="text-primary" />
-                  SEO 구조화 텍스트 리스트
-                </h3>
-                <span className="text-[10px] bg-secondary-container text-on-secondary px-2.5 py-1 rounded-full font-bold uppercase">
-                  Image #{selectedImgIdx + 1}
-                </span>
-              </div>
-
-              {/* Title Input (Editable) */}
-              <div className="group/item border-l-2 border-primary pl-4 py-1.5 relative transition-all hover:border-primary-container">
-                <span className="text-[9px] font-bold text-primary block uppercase tracking-wider mb-1">타이틀 제목</span>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => handleTitleChange(e.target.value)}
-                  className="font-headline-sm text-primary text-left leading-relaxed w-full bg-surface-container-low px-2 py-1 rounded border border-outline-variant focus:outline-none focus:border-primary"
-                />
-              </div>
-
-              {/* Description Input (Editable) */}
-              <div className="group/item border-l-2 border-outline-variant pl-4 py-1.5 relative transition-all hover:border-primary-container">
-                <span className="text-[9px] font-bold text-on-surface-variant block uppercase tracking-wider mb-1">본문 설명</span>
-                <textarea
-                  value={body}
-                  onChange={(e) => handleBodyChange(e.target.value)}
-                  className="font-body-md text-on-surface-variant text-left leading-relaxed w-full bg-surface-container-low px-2 py-1 rounded border border-outline-variant focus:outline-none focus:border-primary resize-y min-h-[90px]"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 text-[10px] text-on-surface-variant/80 mt-1 bg-yellow-50 border border-yellow-100 p-2.5 rounded-lg">
-                <AlertCircle size={12} className="text-yellow-600 shrink-0" />
-                <span>글자를 수정하면 하단 스마트스토어 상세페이지 블록에 실시간 반영됩니다.</span>
-              </div>
-
-            </div>
-
-          </div>
-        )}
+        </div>
       </div>
 
     </div>

@@ -375,11 +375,11 @@ ${bentoTexts.map(p => p.text_content).join('\n\n')}
       <section className="bg-surface-container-lowest p-card-padding rounded-xl border border-outline-variant shadow-sm flex flex-col items-center animate-fade-in">
         <div className="w-full border-b border-outline-variant pb-3 mb-6">
           <div className="flex items-center gap-2">
-            <Sparkles className="text-primary-container shrink-0 animate-pulse" size={24} />
-            <h2 className="font-headline-sm text-headline-sm text-on-surface">AI 실시간 텍스트 오버레이 뷰어 (SEO Hybrid Block)</h2>
+            <Sparkles className="text-primary shrink-0 animate-pulse" size={24} />
+            <h2 className="font-headline-sm text-headline-sm text-on-surface">AI 실시간 반응형 카드 에디터</h2>
           </div>
           <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
-            이미지 내의 글자를 제거한 바탕에 실시간 반응형 SEO 태그를 매핑하여 자유롭게 클릭 수정이 가능한 하이브리드 블록입니다.
+            물리적으로 잘라내고(Crop) 리사이징(Resizing)한 상품 이미지와 최적화된 세련된 본문 텍스트가 조화롭게 결합된 카드 편집기입니다. 글자를 직접 수정하면 상세페이지 전체 정보 모델에 실시간 연동됩니다.
           </p>
         </div>
 

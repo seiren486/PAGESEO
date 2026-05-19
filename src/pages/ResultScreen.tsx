@@ -207,91 +207,23 @@ ${bentoTexts.map(p => p.text_content).join('\n\n')}
   };
 
   /* ========================================================================= */
-  /* CSS CROP PREVIEW ENGINE FOR THE GALLERY CARDS (잘라내기 & 센터링 연동 프리뷰) */
+  /* 원본 상품 이미지 미리보기 렌더러 (텍스트 제거 없이 원본 유지) */
   /* ========================================================================= */
-  const renderCroppedThumbnail = (idx: number, imgUrl: string) => {
-    // Perfect clean inpainting masks to completely erase original text in fallback/uploaded images
-    const maskOverlays = (
-      <>
-        {idx === 1 && (
-          <>
-            <div className="absolute top-0 left-0 right-0 h-[28%] bg-white z-10" />
-            <div className="absolute bottom-0 left-0 right-0 h-[34%] bg-white z-10" />
-          </>
-        )}
-        {idx === 0 && (
-          <div className="absolute bottom-0 left-0 right-0 h-[22%] bg-white z-10" />
-        )}
-        {idx === 4 && (
-          <div className="absolute top-0 left-0 right-0 h-[52%] bg-white z-10" />
-        )}
-        {idx === 5 && (
-          <div className="absolute top-0 left-0 right-0 h-[56%] bg-white z-10" />
-        )}
-        {/* Left corner Inpainted indicator badge */}
+  const renderCroppedThumbnail = (_idx: number, imgUrl: string) => {
+    return (
+      <div className="relative w-full aspect-[4/3] overflow-hidden bg-white flex items-center justify-center p-3">
+        <img 
+          src={imgUrl} 
+          alt="Original Preview" 
+          className="max-w-full max-h-[90%] object-contain mx-auto my-auto object-center"
+          style={{ imageRendering: 'auto' }}
+        />
         <div className="absolute bottom-2 left-2 bg-primary/95 text-on-primary text-[8px] font-bold px-2 py-0.5 rounded shadow flex items-center gap-1 z-20">
           <Sparkles size={8} />
-          AI Synced Clean
+          Original Image
         </div>
-      </>
+      </div>
     );
-
-    switch (idx) {
-      case 1:
-        return (
-          <div className="relative w-full aspect-[4/3] overflow-hidden bg-white flex items-center justify-center">
-            <div className="absolute w-full h-[180%] overflow-hidden flex items-center justify-center">
-              <img 
-                src={imgUrl} 
-                alt="Cropped Preview" 
-                className="w-full h-full object-cover scale-[1.3] translate-y-[-1%]"
-                style={{ imageRendering: 'auto' }}
-              />
-            </div>
-            {maskOverlays}
-          </div>
-        );
-      case 4:
-        return (
-          <div className="relative w-full aspect-[4/3] overflow-hidden bg-white flex items-center justify-center p-2">
-            <div className="absolute w-[100%] h-[160%] top-[4%] overflow-hidden flex items-center justify-center">
-              <img 
-                src={imgUrl} 
-                alt="Cropped Preview" 
-                className="w-full h-full object-contain scale-[1.7] translate-y-[20%]"
-                style={{ imageRendering: 'auto' }}
-              />
-            </div>
-            {maskOverlays}
-          </div>
-        );
-      case 5:
-        return (
-          <div className="relative w-full aspect-[4/3] overflow-hidden bg-white flex items-center justify-center">
-            <div className="absolute w-full h-[160%] bottom-0 overflow-hidden flex items-center justify-center">
-              <img 
-                src={imgUrl} 
-                alt="Cropped Preview" 
-                className="w-full h-full object-cover scale-[1.3] translate-y-[10%]"
-                style={{ imageRendering: 'auto' }}
-              />
-            </div>
-            {maskOverlays}
-          </div>
-        );
-      default:
-        return (
-          <div className="relative w-full aspect-[4/3] overflow-hidden bg-white flex items-center justify-center p-3">
-            <img 
-              src={imgUrl} 
-              alt="Cropped Preview" 
-              className="max-w-full max-h-[90%] object-contain mx-auto my-auto object-center scale-[1.15]"
-              style={{ imageRendering: 'auto' }}
-            />
-            {maskOverlays}
-          </div>
-        );
-    }
   };
 
   return (

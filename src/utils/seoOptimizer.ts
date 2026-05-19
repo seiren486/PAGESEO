@@ -147,9 +147,7 @@ ${combinedExtractedText.length > 0 ? combinedExtractedText : "(감지된 이미�
       detail_page_blocks.push({
         block_id: blockIdCounter++,
         type: i === 0 ? "intro_image" : i === 1 ? "problem_image" : "detail_image",
-        image_action_instruction: i === 0 
-          ? "기존 통이미지의 흰색 텍스트 배경 영역을 완전히 잘라내어(Crop) 핵심 상품 요소 중심으로 전체 이미지 크기 리사이징(Resizing) 완료."
-          : `기존 통이미지의 제품 설명 구역(${1500 * i}px~${1500 * (i + 1)}px)에서 흰색 텍스트 배경 영역을 완전히 잘라내고(Crop) 상품 위주로 전체 이미지 크기 정밀 리사이징(Resizing) 완료.`,
+        image_action_instruction: "원본 이미지 데이터 그대로 로딩 및 팩트 기반 텍스트 정보 추출 완료.",
         text_content: ""
       });
     }

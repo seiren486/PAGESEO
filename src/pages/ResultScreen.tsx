@@ -489,30 +489,6 @@ ${bentoTexts.map(p => p.text_content).join('\n\n')}
                         {/* Container that holds the image and apply clean masking overlay to erase raw texts */}
                         <div className="relative w-full overflow-hidden">
                           <img src={blockImgUrl} alt={`Mockup block ${block.block_id}`} className="w-full h-auto block" />
-                          
-                          {/* AI Inpainting Mask Overlays inside Smart Store mockups! */}
-                          {(() => {
-                            const imgIndex = (currentImgIdx - 1) % activeImages.length;
-                            return (
-                              <>
-                                {imgIndex === 1 && (
-                                  <>
-                                    <div className="absolute top-0 left-0 right-0 h-[28%] bg-white z-10" />
-                                    <div className="absolute bottom-0 left-0 right-0 h-[34%] bg-white z-10" />
-                                  </>
-                                )}
-                                {imgIndex === 0 && (
-                                  <div className="absolute bottom-0 left-0 right-0 h-[22%] bg-white z-10" />
-                                )}
-                                {imgIndex === 4 && (
-                                  <div className="absolute top-0 left-0 right-0 h-[52%] bg-white z-10" />
-                                )}
-                                {imgIndex === 5 && (
-                                  <div className="absolute top-0 left-0 right-0 h-[56%] bg-white z-10" />
-                                )}
-                              </>
-                            );
-                          })()}
                         </div>
                         
                         <div className="bg-surface-container-low px-4 py-2 border-t border-outline-variant/20 flex items-center justify-between text-[11px] text-on-surface-variant">
